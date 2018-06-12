@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 """
 basic_plots.py - function definitions for basic plots from static datasets. 
@@ -111,18 +112,19 @@ def plot_linear_by_diffmode(nav, title='Horizontal Error By Differential Mode', 
 			plt.ylabel(ylabel)
 			plt.grid()
 
-def plot_cdf_by_diffmode(nav, title="CDF Horizontal Error by Differential Mode", xlabel='Horiz Error (m)',ylabel='# Epochs in Diff mode: '):
+def plot_cdf_by_diffmode(nav, saveplots='0',savepath=os.getcwd() + "/", title="CDF Horizontal Error by Differential Mode", xlabel='Horiz Error (m)',ylabel='# Epochs in Diff mode: '):
 
 	for diffmode in [0,1,2,3,4,5,6,7,8,9]:
 
 
 		x = nav['Fix Mode'] == diffmode
+		figname = "figcdfhoriz_dMode_" + str(diffmode)
 		if any(np.isfinite(nav['2D Error [m]'][x])):
 			dsorted = np.sort(nav['2D Error [m]'][x])
 			dsorted = dsorted[~np.isnan(dsorted)]
 			yvals = np.arange(len(dsorted))
 
-			plt.figure()
+			plt.figure(figname)
 			plt.plot(dsorted, yvals)
 			tl = title + "\n Diffmode: " + str(diffmode)
 			plt.title(tl)
@@ -139,13 +141,16 @@ def plot_cdf_by_diffmode(nav, title="CDF Horizontal Error by Differential Mode",
 			 	y =  y - ydelim
 			 	plt.text(x, y, a)
 
+			if saveplots == '1':
+				savename = savepath + figname
+				plt.savefig(savename)
+
 def plot_overhead_by_diffmode(nav, title='overhead by diffmode: ',xlabel= 'Error X',ylabel ='Error Y'):
 	"""
 	plot_overhead - seaborn jointplot - can be used for plotting north vs east error
 	"""
 
 	for diffmode in [0,1,2,3,4,5,6,7,8,9]:
-		#plt.figure()
 
 		x = nav['Fix Mode'] == diffmode
 

@@ -191,9 +191,9 @@ class plot_results():
 
 		"""
 		if plotbydiffmode == '1':
-			figbydiffmode = bp.plot_linear_by_diffmode(nav,xlabel=timelabel)
-			figcdfbydiffmode = bp.plot_cdf_by_diffmode(nav)
-			figovdbydiffmode = bp.plot_overhead_by_diffmode(nav)
+			fgsbydiffmode = bp.plot_linear_by_diffmode(nav,xlabel=timelabel)
+			fgscdfbydiffmode = bp.plot_cdf_by_diffmode(nav,saveplots=saveplots, savepath=filepath)
+			fgsovdbydiffmode = bp.plot_overhead_by_diffmode(nav)
 
 
 		if saveplots == '1':
@@ -205,7 +205,7 @@ class plot_results():
 			for var in selected_vars:
 				print(var)
 				plt.figure(var)
-				savename = filepath + var.lstrip('fig')
+				savename = filepath + var
 				plt.savefig(savename)
 
 
