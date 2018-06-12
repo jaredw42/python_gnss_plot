@@ -44,9 +44,9 @@ def plot_cdf(data, title='title', xlabel='Error', ylabel='Percent of Epochs'):
 	a  = []
 	y = 0.35
 	ydelim = 0.05
-	print(np.max(dsorted), "dsorted max")
+	#print(np.max(dsorted), "dsorted max")
 	x = np.max([~np.isnan(dsorted)]) * 0.33
-	print(x,"x pos")
+	#print(x,"x pos")
 	for q in [50, 68, 95, 99.9]:
   		 a = (("{}% percentile: {}".format (q, np.percentile(dsorted, q))))
   		 y =  y - ydelim
