@@ -30,9 +30,7 @@ class App:
 
     		varname = opts[x]
     		vartext = opts[x].get()
-    		#print(opts.get())
     		self.optbox = tk.Checkbutton(frame,text=vartext,variable=varname)
-    		#print(x.value)
     		self.optbox.pack()
     	self.runbutton = tk.Button(frame,command=self.execute_test,text="Run analysis")
     	self.runbutton.pack()
