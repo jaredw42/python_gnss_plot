@@ -95,11 +95,6 @@ class plot_results():
 		nav['errE'] = errE
 		nav['errD'] = errD
 
-		print(nav.columns)
-
-
-
-
 		figsats = bp.plot_linear(t, nav['SVs Used'], title='Sats used by ' + timelabel, xlabel=timelabel, ylabel='Sats in Solution')
 		fighorizerror = bp.plot_linear(t, nav['2D Error [m]'], title='Horiz Error by '+ timelabel, xlabel=timelabel, ylabel='2D Error (m)')
 		print("horiz err cdf below")
@@ -111,20 +106,15 @@ class plot_results():
 		if rfonoff == True:
 			filename = "rf-on-off.csv"
 			fullpath = filepath + filename
-
+			print("loading csv: ", fullpath)
 			rf = pd.read_csv(fullpath)
-			print(filename)
-			print(rf.columns)
-
+			
 		elif starts == True:
 			filename = "starts.csv"
 			fullpath = filepath + filename
-
+			print("loading csv: ", fullpath)
 			rf = pd.read_csv(fullpath)
-			print(filename)
-			print(rf.columns)
 
-		#l = [rfonoff, starts]
 		if rfonoff == True or starts == True:
 
 			figttrtkfix = bp.plot_cdf_num(rf['TT Fixed [s]'], title='CDF Time to RTK Fixed', xlabel='Seconds to RTK Fixed')
@@ -166,7 +156,8 @@ class plot_results():
 
 		"""
 
-		if plottransitions == '1':# | rfonoff == true:
+		if plottransitions == '1':
+			print("plotting diffmode transitions")
 
 			tflotofix = rf['TT Fixed [s]'] - rf ['TT Float [s]']
 			figflotofix = bp.plot_cdf_num(tflotofix, title='Transition time by Cycle\n RTK Float to RTK Fixed', xlabel='Seconds to RTK Fixed')
