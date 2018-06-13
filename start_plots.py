@@ -10,10 +10,16 @@ class App:
         frame = tk.Frame(master)
         frame.pack()
         self.filepath = tk.StringVar()
-        self.filepath.set("/Users/jwilson/SwiftNav/dev/gtt/05-GT1_A-RF_B-CN_LBL_v143/DUT11/20180205-080905-lj11-t2-d24h-f4-RTK-RFOnOff-1-5s/")
+        self.filepath.set("/Users/jwilson/SwiftNav/analysis/08-gt3_sbas_smoothing/DUT33/20180608-103420-lj33-t1-d24h-f6-SBAS-ContNav/")
+
+        self.filepath2 = tk.StringVar()
+        self.filepath2.set("/Users/jwilson/SwiftNav/analysis/08-gt3_sbas_smoothing/DUT34/20180608-103421-lj34-t1-d24h-f6-SBAS-ContNav/")
         
-        self.fileentry = tk.Entry(frame, textvariable=self.filepath, width=150)
+        self.fileentry = tk.Entry(frame, textvariable=self.filepath, width=125)
         self.fileentry.pack()
+
+        self.file2 =tk.Entry(frame,textvariable=self.filepath2, width=125)
+        self.file2.pack()
 
         self.nb = tk.StringVar()
         self.nb.set("plot normalized boot stats")
@@ -42,10 +48,13 @@ class App:
 
     def execute_test(self):
 
-        #for _name in range(self.opts_len):
-        args = [self.filepath.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get()]
-        print(args)
-        pr.plot_results.plot_stuff(self,args)
+        args = [self.filepath.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get(),self.file2.get()]
+       # pr.plot_results.plot_individual(self,args)
+
+        if self.file2.get() != None:
+            args = [self.filepath.get(),self.file2.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get()]
+            print("ploting comparitively")
+            pr.plot_results.plot_comparative(self, args)
 
 
 

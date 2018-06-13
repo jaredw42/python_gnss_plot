@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import time
 import basic_plots as bp 
+import compare_plots as cp
 import re
 import gc
 import pymap3d as pm
@@ -39,7 +40,7 @@ class plot_results():
 	"""
 
 
-	def plot_stuff(self, args):
+	def plot_individual(self, args):
 		print(args)
 		filepath = args[0]
 		plotnormalizedboot = args[1]
@@ -211,5 +212,45 @@ class plot_results():
 
 
 		plt.show()
+
+	def plot_comparative(self,args):
+		filepath = args[0]
+		filepath2 = args[1]
+		plotnormalizedboot = args[2]
+		plottransitions = args[3]
+		plotbydiffmode = args[4]
+		saveplots = args[5]
+
+		filename = "nav.csv"
+		starts = False
+		rfonoff = False
+		
+		
+
+		if re.search('Starts', filepath):
+			starts = True
+			rfonoff = False
+			print('starts dataset detetcted')
+		elif re.search('RFOnOff', filepath):
+			starts = False
+			rfonoff = True
+			print('rf-on-off dataset detected')
+		else:
+			starts= False
+			rfonoff=False
+			print("no rfonoff or starts data detected")
+
+		fullpath = filepath + filename
+		fullpath2 = filepath2 + filename
+		print(filepath2)
+		print(fullpath2)
+		print("loading csv: ", fullpath)
+		nav = pd.read_csv(fullpath)
+		nav2 = pd.read_csv(fullpath2)
+		print('nav.csvs loaded')
+
+		err1 = nav['2D Error [m]']
+		err2 = nav2['2D Error [m]']
+		figcdfhoriz = cp.plot_cdf(err1=err1, err2=err2, figname='figcdfhoriz')
 
 
