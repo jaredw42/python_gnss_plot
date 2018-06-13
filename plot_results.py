@@ -249,8 +249,9 @@ class plot_results():
 		nav2 = pd.read_csv(fullpath2)
 		print('nav.csvs loaded')
 
+		print(nav['2D Error [m]'])
 		err1 = nav['2D Error [m]']
 		err2 = nav2['2D Error [m]']
-		figcdfhoriz = cp.plot_cdf(err1=err1, err2=err2, figname='figcdfhoriz')
+		figcdfhoriz = cp.plot_cdf(err1=err1, err2=err2)
 
 
