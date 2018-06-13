@@ -1,6 +1,9 @@
 #!/usr/local/bin/python3
 import tkinter as tk
-import plot_results as pr  
+import plot_results as pr 
+import magicdataanalyzer as mda 
+import numpy as np
+import pandas as pd
 
 
 class App:
@@ -10,10 +13,10 @@ class App:
         frame = tk.Frame(master)
         frame.pack()
         self.filepath = tk.StringVar()
-        self.filepath.set("/Users/jwilson/SwiftNav/analysis/08-gt3_sbas_smoothing/DUT33/20180608-103420-lj33-t1-d24h-f6-SBAS-ContNav/")
+        self.filepath.set("C:\\PiksiMultiTesting\\2018-06\\08-gt3_sbas_smoothing\\DUT33\\20180608-162744-lj33-t1-d24h-f6-SBAS-ContNav\\nav.csv")
 
         self.filepath2 = tk.StringVar()
-        self.filepath2.set("/Users/jwilson/SwiftNav/analysis/08-gt3_sbas_smoothing/DUT34/20180608-103421-lj34-t1-d24h-f6-SBAS-ContNav/")
+        self.filepath2.set("C:\\PiksiMultiTesting\\2018-06\\08-gt3_sbas_smoothing\\DUT34\\20180608-162747-lj34-t1-d24h-f6-SBAS-ContNav\\nav.csv")
         
         self.fileentry = tk.Entry(frame, textvariable=self.filepath, width=125)
         self.fileentry.pack()
@@ -41,8 +44,10 @@ class App:
             vartext = opts[x].get()
             self.optbox = tk.Checkbutton(frame,text=vartext,variable=varname)
             self.optbox.pack()
-        self.runbutton = tk.Button(frame,command=self.execute_test,text="Run analysis")
+        self.runbutton = tk.Button(frame,command=self.execute_test,text="Generate Plots")
         self.runbutton.pack()
+        self.calcbutton = tk.Button(frame,command=self.execute_calc,text="do calc")
+        self.calcbutton.pack()
         self.quitbutton = tk.Button(frame, text="Quit", command=frame.quit)
         self.quitbutton.pack()
 
@@ -55,6 +60,15 @@ class App:
             args = [self.filepath.get(),self.file2.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get()]
             print("ploting comparitively")
             pr.plot_results.plot_comparative(self, args)
+
+    def execute_calc(self):
+    	args = [self.filepath.get(),self.file2.get()]#, self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get()]
+    	print(args[0])
+    	nav = pd.read_csv(args[0])
+
+    	[errN, errE, errD] = mda.calcLLH2NED(nav)
+
+    	print(errN)
 
 
 
