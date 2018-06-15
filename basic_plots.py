@@ -15,27 +15,30 @@ basic_plots.py - function definitions for basic plots from static datasets.
 
 """
 
-def plot_linear(x,y,figname='fig', title='title', xlabel='nav', ylabel=''):
+def plot_linear(x,y, figname='fig', title='title', xlabel='nav', ylabel='',fw='fw'):
 	plt.figure(figname)
-	plt.plot(x,y)
+	plt.plot(x,y,label=fw)
 	plt.title(title)
 	plt.xlabel(xlabel)
 	plt.ylabel(ylabel)
 	plt.grid()
+	plt.legend(loc='upper right')
 
-def plot_cdf(data,figname='fig', title='title', xlabel='Error', ylabel='Percent of Epochs'):
+def plot_cdf(data,figname='fig', title='title', xlabel='Error', ylabel='Percent of Epochs',fw='fw'):
 	"""
 	plot_cdf - sorts values and plots CDF of a 1D dataframe the old fashioned way (percentile as y-axis)
 	"""
 
 
-	#print data 	
-	dsorted = np.sort(data)
+	print(type(data), "input data type")
+	#dsorted = np.sort(data[:].values)
 	#print np.std(dsorted) 
-	#print head(dsorted.data)
-	yvals = np.arange(len(data)) / float(len(data) - 1)
+	dsorted = np.sort(data)
+	print(type(dsorted), "type dsorted")
+	yvals = np.arange(len(dsorted)) / float(len(dsorted) - 1)
 	plt.figure(figname)
-	plt.plot(dsorted, yvals)
+	plt.plot(dsorted, yvals,label=fw)
+	plt.legend(loc='upper right')
 	plt.title(title)
 	plt.xlabel(xlabel)
 	plt.ylabel(ylabel)
@@ -49,18 +52,15 @@ def plot_cdf(data,figname='fig', title='title', xlabel='Error', ylabel='Percent 
 	x = np.max([~np.isnan(dsorted)]) * 0.33
 	#print(x,"x pos")
 	for q in [50, 68, 95, 99.9]:
-  		 a = (("{}% percentile: {}".format (q, np.percentile(dsorted, q))))
-  		 y =  y - ydelim
-  		 plt.text(x, y, a)
-  	#print a
+		a = (("{}% percentile: {}".format (q, np.percentile(dsorted, q))))
+		y =  y - ydelim
+		plt.text(x, y, a)
+		#print a
 
-  	#a = np.reshape(a, -4)
-
-  	#plt.text(0.5,0.5,a, wrap=True)
+	a = np.reshape(a, -4)
 
 
-
-def plot_cdf_num(data,figname='fig', title='title', xlabel='Error', ylabel='Number of Cycles'):
+def plot_cdf_num(data,figname='fig', title='title', xlabel='Error', ylabel='Number of Cycles',fw='fw'):
 	"""
 	plot_cdf_num - sorts values and plots CDF of values with y-axis of number of epochs or cycles (as opposed to percentile)
 	"""
@@ -69,11 +69,12 @@ def plot_cdf_num(data,figname='fig', title='title', xlabel='Error', ylabel='Numb
 	yvals = np.arange(len(dsorted))
 
 	plt.figure(figname)
-	plt.plot(dsorted, yvals)
+	plt.plot(dsorted, yvals,label=fw)
 	plt.title(title)
 	plt.xlabel(xlabel)
 	plt.ylabel(ylabel)
 	plt.grid()
+	plt.legend(loc='upper right')
 	x = np.max(dsorted) * 0.66
 
 	y = np.max(yvals) * 0.4
@@ -95,9 +96,10 @@ def plot_overhead(x, y, title='overhead',xlabel= 'Error X',ylabel ='Error Y'):
 	#plt.xlabel(xlabel)
 	#plt.ylabel(ylabel)
 
-def plot_linear_by_diffmode(nav, title='Horizontal Error By Differential Mode', xlabel='nav', ylabel='Horiz Error (m)'):
+def plot_linear_by_diffmode(nav, title='Horizontal Error By Differential Mode', xlabel='nav', ylabel='Horiz Error (m)',fw='fw'):
 
-	for diffmode in [0,1,2,3,4,5,6,7,8,9]:
+	for diffmode in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]:
+	#for diffmode in [0:20:1]:
 
 		x = nav['Fix Mode'] == diffmode
 		
@@ -112,9 +114,10 @@ def plot_linear_by_diffmode(nav, title='Horizontal Error By Differential Mode', 
 			plt.ylabel(ylabel)
 			plt.grid()
 
-def plot_cdf_by_diffmode(nav, saveplots='0',savepath=os.getcwd() + "/", title="CDF Horizontal Error by Differential Mode", xlabel='Horiz Error (m)',ylabel='# Epochs in Diff mode: '):
+def plot_cdf_by_diffmode(nav, saveplots='0',savepath=os.getcwd() + "/", title="CDF Horizontal Error by Differential Mode", xlabel='Horiz Error (m)',ylabel='# Epochs in Diff mode: ',fw='fw'):
 
-	for diffmode in [0,1,2,3,4,5,6,7,8,9]:
+	for diffmode in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]:
+	#for diffmode in [0:20:1]:
 
 
 		x = nav['Fix Mode'] == diffmode
@@ -125,7 +128,9 @@ def plot_cdf_by_diffmode(nav, saveplots='0',savepath=os.getcwd() + "/", title="C
 			yvals = np.arange(len(dsorted))
 
 			plt.figure(figname)
-			plt.plot(dsorted, yvals)
+			plt.plot(dsorted, yvals,label=fw)
+			plt.legend(loc='upper right')
+
 			tl = title + "\n Diffmode: " + str(diffmode)
 			plt.title(tl)
 			plt.xlabel(xlabel)

@@ -4,6 +4,11 @@ import plot_results as pr
 import magicdataanalyzer as mda 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt 
+import basic_plots as bp
+import make_plots as mkp
+import re
+
 
 
 class App:
@@ -13,10 +18,10 @@ class App:
         frame = tk.Frame(master)
         frame.pack()
         self.filepath = tk.StringVar()
-        self.filepath.set("C:\\PiksiMultiTesting\\2018-06\\08-gt3_sbas_smoothing\\DUT33\\20180608-162744-lj33-t1-d24h-f6-SBAS-ContNav\\nav.csv")
+        self.filepath.set("/Users/jwilson/SwiftNav/analysis/08-gt3_sbas_smoothing/DUT33/20180608-103420-lj33-t1-d24h-f6-SBAS-ContNav/")
 
         self.filepath2 = tk.StringVar()
-        self.filepath2.set("C:\\PiksiMultiTesting\\2018-06\\08-gt3_sbas_smoothing\\DUT34\\20180608-162747-lj34-t1-d24h-f6-SBAS-ContNav\\nav.csv")
+        self.filepath2.set("/Users/jwilson/SwiftNav/analysis/08-gt3_sbas_smoothing/DUT34/20180608-103421-lj34-t1-d24h-f6-SBAS-ContNav/")
         
         self.fileentry = tk.Entry(frame, textvariable=self.filepath, width=125)
         self.fileentry.pack()
@@ -52,25 +57,39 @@ class App:
         self.quitbutton.pack()
 
     def execute_test(self):
-
+        
         args = [self.filepath.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get(),self.file2.get()]
-       # pr.plot_results.plot_individual(self,args)
 
-        if self.file2.get() != None:
-            args = [self.filepath.get(),self.file2.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get()]
-            print("ploting comparitively")
-            pr.plot_results.plot_comparative(self, args)
+        pr.plot_results.plot_individual(args)
+
+        # if self.file2.get() != None:
+        #     args = [self.filepath.get(),self.file2.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get()]
+        #     print("ploting comparitively")
+            
+          #  pr.plot_results.plot_comparative(args)
 
     def execute_calc(self):
-    	args = [self.filepath.get(),self.file2.get()]#, self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get()]
-    	print(args[0])
-    	nav = pd.read_csv(args[0])
 
-    	[errN, errE, errD] = mda.calcLLH2NED(nav)
+        fplist = []
+        for a in args:
+            if re.search('2018',a):
+                fplist.append(a)
+        
+        testdata = {}
 
-    	print(errN)
+        for i, fp in enumerate(fplist):
 
+            testdata['fp{}'.format(i)] = fp
+            readstr = fp + 'nav.csv'
+            df = pd.read_csv(readstr)
+            print(type(df))
+            testdata['nav{}'.format(i)] = df
+            print(type(testdata['nav' + str(fplist.index(fp))]))
+            testdata['info{}'.format(i)] = pr.plot_results.get_metadata(fp)
+           # testdata['df']
+        print(testdata.keys())
 
+        mkp.make_plots(testdata)
 
 
 
