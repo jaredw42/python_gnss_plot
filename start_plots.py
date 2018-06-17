@@ -4,6 +4,7 @@ import plot_results as pr
 import magicdataanalyzer as mda 
 import numpy as np
 import pandas as pd
+import xarray as xr
 import matplotlib.pyplot as plt 
 import basic_plots as bp
 import make_plots as mkp
@@ -23,11 +24,20 @@ class App:
         self.filepath2 = tk.StringVar()
         self.filepath2.set("/Users/jwilson/SwiftNav/analysis/08-gt3_sbas_smoothing/DUT34/20180608-103421-lj34-t1-d24h-f6-SBAS-ContNav/")
         
+        self.filepath3 = tk.StringVar()
+        self.filepath4 = tk.StringVar()
+
         self.fileentry = tk.Entry(frame, textvariable=self.filepath, width=125)
         self.fileentry.pack()
 
         self.file2 =tk.Entry(frame,textvariable=self.filepath2, width=125)
         self.file2.pack()
+
+        self.file3 =tk.Entry(frame,textvariable=self.filepath3, width=125)
+        self.file3.pack()
+
+        self.file4 =tk.Entry(frame,textvariable=self.filepath4, width=125)
+        self.file4.pack()
 
         self.nb = tk.StringVar()
         self.nb.set("plot normalized boot stats")
@@ -51,14 +61,14 @@ class App:
             self.optbox.pack()
         self.runbutton = tk.Button(frame,command=self.execute_test,text="Generate Plots")
         self.runbutton.pack()
-        self.calcbutton = tk.Button(frame,command=self.execute_calc,text="do calc")
+        self.calcbutton = tk.Button(frame,command=self.execute_calc,text="qul cHa")
         self.calcbutton.pack()
         self.quitbutton = tk.Button(frame, text="Quit", command=frame.quit)
         self.quitbutton.pack()
 
     def execute_test(self):
         
-        args = [self.filepath.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get(),self.file2.get()]
+        args = [self.filepath.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get(),self.filepath2.get()]
 
         pr.plot_results.plot_individual(args)
 
@@ -69,27 +79,50 @@ class App:
           #  pr.plot_results.plot_comparative(args)
 
     def execute_calc(self):
+       
+        args = [self.filepath.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get(),self.filepath2.get(),
+                self.filepath3.get(), self.filepath4.get()]
 
         fplist = []
         for a in args:
             if re.search('2018',a):
                 fplist.append(a)
         
-        testdata = {}
+        md = {}
+        nav = []
+        
 
         for i, fp in enumerate(fplist):
 
-            testdata['fp{}'.format(i)] = fp
+            md['fp{}'.format(i)] = fp
+
             readstr = fp + 'nav.csv'
             df = pd.read_csv(readstr)
-            print(type(df))
-            testdata['nav{}'.format(i)] = df
-            print(type(testdata['nav' + str(fplist.index(fp))]))
-            testdata['info{}'.format(i)] = pr.plot_results.get_metadata(fp)
-           # testdata['df']
-        print(testdata.keys())
+         #   md['info{}'.format(i)] = pr.plot_results.get_metadata(fp)
+            md = pr.plot_results.get_metadata(fp)
 
-        mkp.make_plots(testdata)
+            c = df.columns.values.tolist()
+          #  nav.append(xr.DataArray(df,dims=c))
+
+            refdata = {'refLat': md['refLat'], 
+                       'refLon': md['refLon'], 
+                       'refAlt': md['refAlt'],
+                           'fw': md['FWversion']}
+
+            for k,v in refdata.items():
+                print(k, v, "refdata kv")
+            ds = xr.Dataset.from_dataframe(df)
+            ds.attrs = refdata
+
+            print(ds.attrs, 'attributes')
+            print(ds.attrs.items(), 'items')
+           # print(ds.attrs['refLon'])
+
+            for k,v in ds.attrs.items():
+                print(k, v, "dataset kv")
+
+            nav.append(ds)
+        mkp.mkp.make_plots(nav)
 
 
 
