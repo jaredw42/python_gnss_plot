@@ -34,6 +34,7 @@ def plot_cdf(data,figname='fig', title='title', xlabel='Error', ylabel='Percent 
 	#dsorted = np.sort(data[:].values)
 	#print np.std(dsorted) 
 	dsorted = np.sort(data)
+	dsorted = dsorted[~np.isnan(dsorted)]
 	print(type(dsorted), "type dsorted")
 	yvals = np.arange(len(dsorted)) / float(len(dsorted) - 1)
 	plt.figure(figname)
@@ -43,21 +44,20 @@ def plot_cdf(data,figname='fig', title='title', xlabel='Error', ylabel='Percent 
 	plt.xlabel(xlabel)
 	plt.ylabel(ylabel)
 	plt.grid()
-	
+	print(dsorted)
+	print(len(dsorted))
 	#below here sets values for CDF stats printouts on the plots
 	a  = []
 	y = 0.35
 	ydelim = 0.05
 	#print(np.max(dsorted), "dsorted max")
-	x = np.max([~np.isnan(dsorted)]) * 0.33
+	x = np.max(dsorted) * 0.66
 	#print(x,"x pos")
 	for q in [50, 68, 95, 99.9]:
-		a = (("{}% percentile: {}".format (q, np.percentile(dsorted, q))))
+		a = (("{}% percentile: {:.2f}".format (q, np.percentile(dsorted, q))))
 		y =  y - ydelim
 		plt.text(x, y, a)
 		#print a
-
-	a = np.reshape(a, -4)
 
 
 def plot_cdf_num(data,figname='fig', title='title', xlabel='Error', ylabel='Number of Cycles',fw='fw'):
@@ -108,10 +108,11 @@ def plot_linear_by_diffmode(nav, title='Horizontal Error By Differential Mode', 
 			titledmode = "Diffmode: " + str(diffmode) #makes string of diff mode for the title block
 			print("Plotting diffmode", diffmode)
 			plt.figure()
-			plt.plot(nav['TOW [s]'][x],nav['2D Error [m]'][x])
+			plt.plot(nav['TOW [s]'][x],nav['2D Error [m]'][x],label=fw)
 			plt.title(str(title) + "\n" + titledmode)
 			plt.xlabel(xlabel)
 			plt.ylabel(ylabel)
+			plt.legend(loc='upper right')
 			plt.grid()
 
 def plot_cdf_by_diffmode(nav, saveplots='0',savepath=os.getcwd() + "/", title="CDF Horizontal Error by Differential Mode", xlabel='Horiz Error (m)',ylabel='# Epochs in Diff mode: ',fw='fw'):
