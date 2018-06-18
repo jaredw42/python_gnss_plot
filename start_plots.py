@@ -19,13 +19,16 @@ class App:
         frame = tk.Frame(master)
         frame.pack()
         self.filepath = tk.StringVar()
-        self.filepath.set("/Users/jwilson/SwiftNav/analysis/08-gt3_sbas_smoothing/DUT33/20180608-103420-lj33-t1-d24h-f6-SBAS-ContNav/")
+        self.filepath.set("/Users/jwilson/SwiftNav/dev/gnss_plot/5hz/20180615-162040-lj13-t2-d24h-f4-RTK-RFOnOff-1-5s/")
 
         self.filepath2 = tk.StringVar()
-        self.filepath2.set("/Users/jwilson/SwiftNav/analysis/08-gt3_sbas_smoothing/DUT34/20180608-103421-lj34-t1-d24h-f6-SBAS-ContNav/")
+        self.filepath2.set("/Users/jwilson/SwiftNav/dev/gnss_plot/5hz/20180615-162011-lj14-t2-d24h-f4-RTK-RFOnOff-1-5s/")
         
         self.filepath3 = tk.StringVar()
+        self.filepath3.set("/Users/jwilson/SwiftNav/dev/gnss_plot/10hz/20180615-161815-lj11-t2-d24h-f4-RTK-RFOnOff-1-5s/")
+        
         self.filepath4 = tk.StringVar()
+        self.filepath4.set("/Users/jwilson/SwiftNav/dev/gnss_plot/10hz/20180615-161818-lj12-t2-d24h-f4-RTK-RFOnOff-1-5s/")
 
         self.fileentry = tk.Entry(frame, textvariable=self.filepath, width=125)
         self.fileentry.pack()
@@ -59,9 +62,9 @@ class App:
             vartext = opts[x].get()
             self.optbox = tk.Checkbutton(frame,text=vartext,variable=varname)
             self.optbox.pack()
-        self.runbutton = tk.Button(frame,command=self.execute_test,text="Generate Plots")
+        self.runbutton = tk.Button(frame,command=self.execute_test,text="Single dataset Plots")
         self.runbutton.pack()
-        self.calcbutton = tk.Button(frame,command=self.execute_calc,text="qul cHa")
+        self.calcbutton = tk.Button(frame,command=self.execute_calc,text="Bring the rain")
         self.calcbutton.pack()
         self.quitbutton = tk.Button(frame, text="Quit", command=frame.quit)
         self.quitbutton.pack()
@@ -122,7 +125,29 @@ class App:
                 print(k, v, "dataset kv")
 
             nav.append(ds)
-        mkp.mkp.make_plots(nav)
+        mkp.mkp.plot_nav(nav)
+
+        rf = []
+
+        for fp in fplist:
+            if re.search('RFOnOff', fp):
+                readstr = fp + 'rf-on-off.csv'
+
+                df = pd.read_csv(readstr)
+                md = mda.get_metadata(fp)
+
+                refdata = {'refLat': md['refLat'], 
+                           'refLon': md['refLon'], 
+                           'refAlt': md['refAlt'],
+                               'fw': md['FWversion']}
+
+
+
+                ds = xr.Dataset.from_dataframe(df)
+                ds.attrs = refdata
+                rf.append(ds)
+
+        mkp.mkp.plot_rf(rf)
 
 
 

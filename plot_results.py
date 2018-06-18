@@ -97,15 +97,17 @@ class plot_results():
             t = nav.index
             timelabel = "Epoch"
 
-        refLat = 37.77101988
-        refLon = -122.40315123
-        refAlt = -5.612
+        # refLat = 37.77101988
+        # refLon = -122.40315123
+        # refAlt = -5.612
 
-        errN, errE, errD = pm.geodetic2ned(nav['Lat [deg]'], nav['Lon [deg]'], nav['Alt Ellips [m]'],
-                                            refLat, refLon, refAlt)
-        nav['errN'] = errN
-        nav['errE'] = errE
-        nav['errD'] = errD
+        # errN, errE, errD = pm.geodetic2ned(nav['Lat [deg]'], nav['Lon [deg]'], nav['Alt Ellips [m]'],
+        #                                     refLat, refLon, refAlt)
+        # nav['errN'] = errN
+        # nav['errE'] = errE
+        # nav['errD'] = errD
+
+        errN, errE, errD = mda.calc_LLH2NED(nav)
 
         fw = md['FWversion']
         figsats = bp.plot_linear(t, nav['SVs Used'],figname='figsats', title='Sats used by ' + timelabel, xlabel=timelabel, ylabel='Sats in Solution',fw=fw)
