@@ -128,7 +128,7 @@ class mkp():
                 if any(np.isfinite(dsorted)):
                         
                     ds = dsorted[~np.isnan(dsorted)]
-                    yvals = np.arange(len(ds))# /float(len(ds) - 1)
+                    yvals = np.arange(len(ds)) /float(len(ds) - 1)
                     ax.plot(ds, yvals,label=navdata.attrs['fw'])
 
                     # find percentile values and add to plot
@@ -156,7 +156,7 @@ class mkp():
                 ymin, ymax = ax.get_ylim()
 
                 ypos = ymax * 0.3
-                xpos = xmax * 0.7
+                xpos = xmax * 0.6
                 print(a)
                 if sbplnum > 2:
                     cdf = np.reshape(cdf,[4,-1])
@@ -168,7 +168,7 @@ class mkp():
 
                 plt.text(xpos, ypos, cdfdata)
                 ax.set_xlabel('Horizontal Error (m) - Diffmode: ' + str(dm))
-                ax.set_ylabel('Number of Epochs')
+                ax.set_ylabel('Percent of Epochs')
                 tlname = 'GTT ' + navdata.attrs['testname']
                 tlsoln = '\nSolution rate: ' + navdata.attrs['solnrate'].rstrip() + 'Hz  Date: ' + tdate
                 tl = tlname + tlsoln + '\n CDF Horizontal Error for Diff Mode: ' + str(dm)
@@ -257,10 +257,9 @@ class mkp():
             for i, rfdata in enumerate(rf):
 
                 ds = np.sort(rfdata[c])
-               # ds = ttrtkfixsorted
-
+    
                 ds = ds[~np.isnan(ds)]
-                yvals = np.arange(len(ds)) 
+                yvals = np.arange(len(ds)) /float(len(ds) - 1)
                 ax.plot(ds, yvals,label=rfdata.attrs['fw'])
 
 
@@ -285,7 +284,7 @@ class mkp():
                 ymin, ymax = ax.get_ylim()
 
                 ypos = ymax * 0.3
-                xpos = xmax * 0.7
+                xpos = xmax * 0.6
                 if sbplnum > 2:
                     cdf = np.reshape(cdf,[4,-1])
 

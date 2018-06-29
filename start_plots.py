@@ -19,16 +19,22 @@ class App:
         frame = tk.Frame(master)
         frame.pack()
         self.filepath = tk.StringVar()
-        self.filepath.set("//Users/jwilson/SwiftNav/Piksi_v16_testing/gtt/18-gt3_5hz_rtkstarts_v160/DUT31/20180618-112325-lj31-t3-d24h-f4-RTK-Starts/")
+        self.filepath.set("/Volumes/data/data/PiksiMultiTesting/2018-06/25-gt2_10hz_rtkST_v162/DUT22/20180626-050240-lj22-t3-d24h-f4-RTK-Starts/")
 
         self.filepath2 = tk.StringVar()
-        self.filepath2.set("/Users/jwilson/SwiftNav/Piksi_v16_testing/gtt/18-gt3_5hz_rtkstarts_v160/DUT32/20180618-112327-lj32-t3-d24h-f4-RTK-Starts/")
+        self.filepath2.set("/Volumes/data/data/PiksiMultiTesting/2018-06/25-gt2_10hz_rtkST_v162/DUT23/20180626-050240-lj23-t3-d24h-f4-RTK-Starts/")
         
         self.filepath3 = tk.StringVar()
-        #self.filepath3.set("/Volumes/data/data/PiksiMultiTesting/2018-06/18-gt2_5hz_rf5_GPS_GLN_test_v160/DUT23/20180618-083947-lj23-t2-d24h-f4-RTK-RFOnOff-1-5s/")
+        self.filepath3.set("/Volumes/data/data/PiksiMultiTesting/2018-05/11-gt1_A-starts_B-CN_v1512/DUT14/20180511-130115-lj14-t3-d24h-f4-RTK-Starts/")
         
         self.filepath4 = tk.StringVar()
-      #  self.filepath4.set("/")
+        self.filepath4.set("/Volumes/data/data/PiksiMultiTesting/2018-01/19-GT2_A_starts_B_RFoff_65s/DUT23/20180119-124747-lj23-t3-d24h-f4-RTK-Starts/")
+
+        self.filepath5 = tk.StringVar()
+        self.filepath5.set("/Volumes/data/data/PiksiMultiTesting/2017/2017-11/08-v1.2.14/DUT14/20171108-113337-lj14-t3-d24h-f4-RTK-Starts/")
+
+        self.filepath6 = tk.StringVar()
+        self.filepath6.set("/Volumes/data/data/PiksiMultiTesting/2017/2017-07/26-v1.1.29/LJ4/20170726-152855-lj4-t3-d24h-f4-Starts-cold-rtk/")
 
         self.fileentry = tk.Entry(frame, textvariable=self.filepath, width=125)
         self.fileentry.pack()
@@ -41,6 +47,12 @@ class App:
 
         self.file4 =tk.Entry(frame,textvariable=self.filepath4, width=125)
         self.file4.pack()
+
+        self.file5 =tk.Entry(frame,textvariable=self.filepath5, width=125)
+        self.file5.pack()
+
+        self.file6 =tk.Entry(frame,textvariable=self.filepath6, width=125)
+        self.file6.pack()
 
         self.nb = tk.StringVar()
         self.nb.set("plot normalized boot stats")
@@ -80,11 +92,11 @@ class App:
     def execute_calc(self):
        
         args = [self.filepath.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get(),self.filepath2.get(),
-                self.filepath3.get(), self.filepath4.get()]
+                self.filepath3.get(), self.filepath4.get(), self.filepath5.get(), self.filepath6.get()]
 
         fplist = []
         for a in args:
-            if re.search('2018',a):
+            if re.search('Testing',a):
                 fplist.append(a)
         
         md = {}
