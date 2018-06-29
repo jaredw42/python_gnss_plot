@@ -19,16 +19,16 @@ class App:
         frame = tk.Frame(master)
         frame.pack()
         self.filepath = tk.StringVar()
-        self.filepath.set("/Users/jwilson/SwiftNav/dev/gnss_plot/5hz/20180615-162040-lj13-t2-d24h-f4-RTK-RFOnOff-1-5s/")
+        self.filepath.set("//Users/jwilson/SwiftNav/Piksi_v16_testing/gtt/18-gt3_5hz_rtkstarts_v160/DUT31/20180618-112325-lj31-t3-d24h-f4-RTK-Starts/")
 
         self.filepath2 = tk.StringVar()
-        self.filepath2.set("/Users/jwilson/SwiftNav/dev/gnss_plot/5hz/20180615-162011-lj14-t2-d24h-f4-RTK-RFOnOff-1-5s/")
+        self.filepath2.set("/Users/jwilson/SwiftNav/Piksi_v16_testing/gtt/18-gt3_5hz_rtkstarts_v160/DUT32/20180618-112327-lj32-t3-d24h-f4-RTK-Starts/")
         
         self.filepath3 = tk.StringVar()
-        self.filepath3.set("/Users/jwilson/SwiftNav/dev/gnss_plot/10hz/20180615-161815-lj11-t2-d24h-f4-RTK-RFOnOff-1-5s/")
+        #self.filepath3.set("/Volumes/data/data/PiksiMultiTesting/2018-06/18-gt2_5hz_rf5_GPS_GLN_test_v160/DUT23/20180618-083947-lj23-t2-d24h-f4-RTK-RFOnOff-1-5s/")
         
         self.filepath4 = tk.StringVar()
-        self.filepath4.set("/Users/jwilson/SwiftNav/dev/gnss_plot/10hz/20180615-161818-lj12-t2-d24h-f4-RTK-RFOnOff-1-5s/")
+      #  self.filepath4.set("/")
 
         self.fileentry = tk.Entry(frame, textvariable=self.filepath, width=125)
         self.fileentry.pack()
@@ -64,7 +64,7 @@ class App:
             self.optbox.pack()
         self.runbutton = tk.Button(frame,command=self.execute_test,text="Single dataset Plots")
         self.runbutton.pack()
-        self.calcbutton = tk.Button(frame,command=self.execute_calc,text="Bring the rain")
+        self.calcbutton = tk.Button(frame,command=self.execute_calc,text="Plot ALL")
         self.calcbutton.pack()
         self.quitbutton = tk.Button(frame, text="Quit", command=frame.quit)
         self.quitbutton.pack()
@@ -75,11 +75,7 @@ class App:
 
         pr.plot_results.plot_individual(args)
 
-        # if self.file2.get() != None:
-        #     args = [self.filepath.get(),self.file2.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get()]
-        #     print("ploting comparitively")
-            
-          #  pr.plot_results.plot_comparative(args)
+
 
     def execute_calc(self):
        
@@ -101,53 +97,64 @@ class App:
 
             readstr = fp + 'nav.csv'
             df = pd.read_csv(readstr)
-         #   md['info{}'.format(i)] = pr.plot_results.get_metadata(fp)
-            md = pr.plot_results.get_metadata(fp)
+            md = mda.get_metadata(fp)
+            solnrate = mda.get_soln_rate(df)
 
-            c = df.columns.values.tolist()
-          #  nav.append(xr.DataArray(df,dims=c))
+
+
 
             refdata = {'refLat': md['refLat'], 
                        'refLon': md['refLon'], 
                        'refAlt': md['refAlt'],
-                           'fw': md['FWversion']}
+                           'fw': md['FWversion'],
+                     'solnrate': solnrate,
+                     'filepath': fp,
+                     'testname': md['testname']}
 
             for k,v in refdata.items():
-                print(k, v, "refdata kv")
-            ds = xr.Dataset.from_dataframe(df)
-            ds.attrs = refdata
+                ds = xr.Dataset.from_dataframe(df)
 
-            print(ds.attrs, 'attributes')
-            print(ds.attrs.items(), 'items')
-           # print(ds.attrs['refLon'])
 
-            for k,v in ds.attrs.items():
-                print(k, v, "dataset kv")
+                ds.attrs = refdata
+
 
             nav.append(ds)
         mkp.mkp.plot_nav(nav)
-
         rf = []
+
 
         for fp in fplist:
             if re.search('RFOnOff', fp):
                 readstr = fp + 'rf-on-off.csv'
+            elif re.search('Starts', fp):
+                readstr = fp + 'starts.csv'
+            elif re.search('CorrOnOff', fp):
+                readstr = fp + 'corr-on-off.csv'
+            else:
+                break
 
-                df = pd.read_csv(readstr)
-                md = mda.get_metadata(fp)
-
-                refdata = {'refLat': md['refLat'], 
-                           'refLon': md['refLon'], 
-                           'refAlt': md['refAlt'],
-                               'fw': md['FWversion']}
+            
+            df = pd.read_csv(readstr)
+            md = mda.get_metadata(fp)
 
 
 
+            refdata = {'refLat': md['refLat'], 
+                       'refLon': md['refLon'], 
+                       'refAlt': md['refAlt'],
+                           'fw': md['FWversion'],
+                     'solnrate': solnrate,
+                     'filepath': fp,
+                     'testname': md['testname']}
+
+            if readstr != None:
                 ds = xr.Dataset.from_dataframe(df)
                 ds.attrs = refdata
                 rf.append(ds)
 
         mkp.mkp.plot_rf(rf)
+
+        plt.show()
 
 
 
