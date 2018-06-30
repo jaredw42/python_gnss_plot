@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 
 
 
-
 testpath = '/Users/jwilson/SwiftNav/dev/29-beidou_playback_v164/'
 
 runs = os.listdir(testpath)
@@ -40,10 +39,7 @@ for dirName, subdirList, fileList in os.walk(testpath):
         ds.attrs = {'playback': dirName}
 
         navdata.append(ds)
-        #ds.attrs = refdata
 
-
-#print(navdata)
 
 plt.figure(figsize=[12,9])
 ax = plt.subplot(1,1,1)
