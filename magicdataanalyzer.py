@@ -14,9 +14,13 @@ def calc_LLH2NED(*args):
 
 		nav = value
 		#print(nav)
-		refLat = 37.77101988
-		refLon = -122.40315123
-		refAlt = -5.612
+		#refLat = -35.360799697
+		#refLon = 149.207155405
+		#refAlt = 638.635
+
+		refLat = -35.36081064
+		refLon = 149.20715053
+		refAlt = 638.598		
 
 		errN, errE, errD = pm.geodetic2ned(nav['Lat [deg]'], nav['Lon [deg]'], nav['Alt Ellips [m]'],
 											refLat, refLon, refAlt)

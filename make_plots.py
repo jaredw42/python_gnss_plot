@@ -259,7 +259,7 @@ class mkp():
                 ds = np.sort(rfdata[c])
     
                 ds = ds[~np.isnan(ds)]
-                yvals = np.arange(len(ds)) /float(len(ds) - 1)
+                yvals = np.arange(len(ds))# /float(len(ds) - 1)
                 ax.plot(ds, yvals,label=rfdata.attrs['fw'])
 
 
