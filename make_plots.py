@@ -124,22 +124,22 @@ class mkp():
             for i, navdata in enumerate(nav):
 
                 d = navdata.where(navdata['Fix Mode'] == dm)
-                dsorted = np.sort(d['2D Error [m]'])
-                if any(np.isfinite(dsorted)):
+                plotdata = np.sort(d['2D Error [m]'])
+                if any(np.isfinite(plotdata)):
                         
-                    ds = dsorted[~np.isnan(dsorted)]
-                    yvals = np.arange(len(ds)) /float(len(ds) - 1)
-                    ax.plot(ds, yvals,label=navdata.attrs['fw'])
+                    plotdata = plotdata[~np.isnan(plotdata)]
+                    yvals = np.arange(len(plotdata)) /float(len(plotdata) - 1)
+                    ax.plot(plotdata, yvals,label=navdata.attrs['fw'])
 
                     # find percentile values and add to plot
 
                     for q in [50, 68, 95, 99]:
 
                         if flagcdf == False:
-                            cdfwithtxt.append(("{}% percentile: {:.2f}".format (q, np.percentile(ds, q))))
+                            cdfwithtxt.append(("{}% percentile: {:.2f}".format (q, np.percentile(plotdata, q))))
                             
                         else:
-                            cdf.append(("{:.2f}".format (np.percentile(ds, q))))
+                            cdf.append(("{:.2f}".format (np.percentile(plotdata, q))))
 
                     flagcdf = True
 
@@ -149,7 +149,7 @@ class mkp():
 
                 ax.legend()
                 ax.grid()
-                x = np.median(ds)
+                x = np.median(plotdata)
                 y = np.median(yvals)
 
                 xmin, xmax = ax.get_xlim()
@@ -198,9 +198,7 @@ class mkp():
 
             for i, navdata in enumerate(nav):
 
-
                 ax = plt.subplot(sbplnum,1,1+i)
-
 
                 d = navdata.where(navdata['Cycle'] == cyc)
 
@@ -221,11 +219,14 @@ class mkp():
 
     def plot_rf(rf):
 
+        print(rf)
+
         sbplnum = len(rf)
         print(sbplnum, 'len rf')
 
         saveplots = True 
-        tdate = '2018-06-18'
+        rawdate = str(rf[0]['Start UTC'][0].data)
+        tdate = rawdate.split('T')[0]
 
 
         #set save path for plots
@@ -241,11 +242,16 @@ class mkp():
             print('could not make plots folder')
 
         cdfsize = [12,9]
+        ttplotmetrics = []
 
+        #create list of TT ___ [s] from the data variables and create
+        #plots for these metrics 
+        for var in rf[0].data_vars:
+            if re.match('^TT', var):
+                ttplotmetrics.append(var)
 
-        colnames = ['TT Fixed [s]', 'TT Float [s]', 'TT SPS [s]']
-
-        for c in colnames:
+        for plotmetric in ttplotmetrics:
+            print(plotmetric)
 
             plt.figure(figsize=cdfsize)
 
@@ -255,23 +261,23 @@ class mkp():
             cdf = [] 
 
             for i, rfdata in enumerate(rf):
+                plotdata = np.sort(rfdata[plotmetric])
 
-                ds = np.sort(rfdata[c])
-    
-                ds = ds[~np.isnan(ds)]
-                yvals = np.arange(len(ds))# /float(len(ds) - 1)
-                ax.plot(ds, yvals,label=rfdata.attrs['fw'])
+                if any(np.isfinite(plotdata)):
+                    plotdata = plotdata[~np.isnan(plotdata)]
+                    yvals = np.arange(len(plotdata))# /float(len(plotmetric) - 1)
+                    ax.plot(plotdata, yvals,label=rfdata.attrs['fw'])
 
 
-                for q in [50, 68, 95, 99]:
+                    for q in [50, 68, 95, 99]:
 
-                    if flagcdf == False:
-                        cdfwithtxt.append(("{}% percentile: {:.2f}".format (q, np.percentile(ds, q))))
-                        
-                    else:
-                        cdf.append(("{:.2f}".format (np.percentile(ds, q))))
+                        if flagcdf == False:
+                            cdfwithtxt.append(("{}% percentile: {:.2f}".format (q, np.percentile(plotdata, q))))
+                            
+                        else:
+                            cdf.append(("{:.2f}".format (np.percentile(plotdata, q))))
 
-                flagcdf = True
+                    flagcdf = True
 
                 ax = plt.gca()
             if len(ax.lines) > 0:
@@ -294,17 +300,17 @@ class mkp():
                     cdfdata = np.reshape(cdfwithtxt ,[4,-1])
 
                 plt.text(xpos, ypos, cdfdata)
-                ax.set_xlabel(str(c))
+                ax.set_xlabel(str(plotmetric))
                 ax.set_ylabel('Number of Cycles')
                 tlname = 'GTT ' + rfdata.attrs['testname']
                 tlsoln = '\nSolution rate: ' + rfdata.attrs['solnrate'].rstrip() + 'Hz  Date: ' + tdate
-                tl = tlname + tlsoln + '\n CDF ' + str(c) 
+                tl = tlname + tlsoln + '\n CDF ' + str(plotmetric) 
                 plt.title(tl)
 
                 solnrate = rfdata.attrs['solnrate'].split('.')
                 solnrate = solnrate[0]
 
-                sn = str(c).replace(" ", "")
+                sn = str(plotmetric).replace(" ", "")
                 savename = (tdate + "_" + solnrate + "Hz_" + 
                     rfdata.attrs['testname'] + '_CDF_' + sn)
 
