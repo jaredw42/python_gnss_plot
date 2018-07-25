@@ -81,7 +81,8 @@ class mkp():
 
 
             ax = plt.subplot(sbplnum, 1, 1+i)
-            ax.plot(t, navdata['2D Error [m]'],label=navdata.attrs['fw'])
+            legendname = navdata.attrs['fw'] + '-' + navdata.attrs['solnrate'] + " Hz"
+            ax.plot(t, navdata['2D Error [m]'],label=legendname)
 
             ax.grid()
             ax.legend()
@@ -98,8 +99,6 @@ class mkp():
 
                 solnrate = navdata.attrs['solnrate'].split('.')
                 solnrate = solnrate[0]
-                print(solnrate, 'solnrate')
-
                 ax.set_xlabel(timelabel)
                 savename = (tdate.strip('-') + "_" + navdata.attrs['solnrate'].rstrip('.0') + "Hz_" + 
                     navdata.attrs['testname'].strip() + '_err2D_linear')
@@ -129,7 +128,8 @@ class mkp():
                         
                     plotdata = plotdata[~np.isnan(plotdata)]
                     yvals = np.arange(len(plotdata)) /float(len(plotdata) - 1)
-                    ax.plot(plotdata, yvals,label=navdata.attrs['fw'])
+                    legendname = navdata.attrs['fw'] + '-' + navdata.attrs['solnrate'] + " Hz"
+                    ax.plot(plotdata, yvals,label=legendname)
 
                     # find percentile values and add to plot
 
@@ -201,8 +201,8 @@ class mkp():
                 ax = plt.subplot(sbplnum,1,1+i)
 
                 d = navdata.where(navdata['Cycle'] == cyc)
-
-                ax.scatter(d['TOW [s]'],d['Fix Mode'],label=navdata.attrs['fw'])
+                legendname = navdata.attrs['fw'] + '-' + navdata.attrs['solnrate'] + " Hz"
+                ax.scatter(d['TOW [s]'],d['Fix Mode'],label=legendname)
 
                 if i ==0:
                     tl = 'GTT Static Dataset\n Diff Mode during cycle\n Cycle: ' + str(cyc)
@@ -266,7 +266,8 @@ class mkp():
                 if any(np.isfinite(plotdata)):
                     plotdata = plotdata[~np.isnan(plotdata)]
                     yvals = np.arange(len(plotdata))# /float(len(plotmetric) - 1)
-                    ax.plot(plotdata, yvals,label=rfdata.attrs['fw'])
+                    legendname = rfdata.attrs['fw'] + '-' + rfdata.attrs['solnrate'] + " Hz"
+                    ax.plot(plotdata, yvals,label=legendname)
 
 
                     for q in [50, 68, 95, 99]:
@@ -321,7 +322,7 @@ class mkp():
                 
 
             else:
-                plt.close(fig)               
+                plt.close()               
 
 
         

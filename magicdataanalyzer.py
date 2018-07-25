@@ -70,8 +70,10 @@ def get_metadata(*args):
 
     return(md)
 
-def get_soln_rate(nav):
-
+def get_soln_rate(fp):
+	print(fp, 'fppppppppp mothafuckaaaaaaa')
+	csvpath = str(fp) + 'nav.csv'
+	nav = pd.read_csv(csvpath)
 	"""
 	trims [TOW [s]] to finite values then compares the 100th and 101st array values to calculate the navigation rate
 	"""

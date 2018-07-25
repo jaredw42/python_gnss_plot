@@ -19,22 +19,22 @@ class App:
         frame = tk.Frame(master)
         frame.pack()
         self.filepath = tk.StringVar()
-        self.filepath.set("/Volumes/data/data/PiksiMultiTesting/2018-06/25-gt2_10hz_rtkST_v162/DUT22/20180626-050240-lj22-t3-d24h-f4-RTK-Starts/")
+        self.filepath.set("/Volumes/data/data/PiksiMultiTesting/2018-07/17-gt1_5hz_rf5_rf1m_v1610/DUT13/20180718-161348-lj13-t2-d24h-f4-RTK-RFOnOff-30-50s/")
 
         self.filepath2 = tk.StringVar()
-        self.filepath2.set("/Volumes/data/data/PiksiMultiTesting/2018-06/25-gt2_10hz_rtkST_v162/DUT23/20180626-050240-lj23-t3-d24h-f4-RTK-Starts/")
+        self.filepath2.set("/Volumes/data/data/PiksiMultiTesting/2018-07/17-gt1_5hz_rf5_rf1m_v1610/DUT12/20180718-161415-lj12-t2-d24h-f4-RTK-RFOnOff-30-50s/")
         
         self.filepath3 = tk.StringVar()
-        self.filepath3.set("/Volumes/data/data/PiksiMultiTesting/2018-05/11-gt1_A-starts_B-CN_v1512/DUT14/20180511-130115-lj14-t3-d24h-f4-RTK-Starts/")
+        #self.filepath3.set("/Volumes/data/data/PiksiMultiTesting/2018-05/11-gt1_A-starts_B-CN_v1512/DUT14/20180511-130115-lj14-t3-d24h-f4-RTK-Starts/")
         
         self.filepath4 = tk.StringVar()
-        self.filepath4.set("/Volumes/data/data/PiksiMultiTesting/2018-01/19-GT2_A_starts_B_RFoff_65s/DUT23/20180119-124747-lj23-t3-d24h-f4-RTK-Starts/")
+        #self.filepath4.set("/Volumes/data/data/PiksiMultiTesting/2018-01/19-GT2_A_starts_B_RFoff_65s/DUT23/20180119-124747-lj23-t3-d24h-f4-RTK-Starts/")
 
         self.filepath5 = tk.StringVar()
-        self.filepath5.set("/Volumes/data/data/PiksiMultiTesting/2017/2017-11/08-v1.2.14/DUT14/20171108-113337-lj14-t3-d24h-f4-RTK-Starts/")
+        #self.filepath5.set("/Volumes/data/data/PiksiMultiTesting/2017/2017-11/08-v1.2.14/DUT14/20171108-113337-lj14-t3-d24h-f4-RTK-Starts/")
 
         self.filepath6 = tk.StringVar()
-        self.filepath6.set("/Volumes/data/data/PiksiMultiTesting/2017/2017-07/26-v1.1.29/LJ4/20170726-152855-lj4-t3-d24h-f4-Starts-cold-rtk/")
+        #self.filepath6.set("/Volumes/data/data/PiksiMultiTesting/2017/2017-07/26-v1.1.29/LJ4/20170726-152855-lj4-t3-d24h-f4-Starts-cold-rtk/")
 
         self.fileentry = tk.Entry(frame, textvariable=self.filepath, width=125)
         self.fileentry.pack()
@@ -96,7 +96,7 @@ class App:
 
         fplist = []
         for a in args:
-            if re.search('Testing',a):
+            if re.search('(?i)piksi',a):
                 fplist.append(a)
         
         md = {}
@@ -110,10 +110,7 @@ class App:
             readstr = fp + 'nav.csv'
             df = pd.read_csv(readstr)
             md = mda.get_metadata(fp)
-            solnrate = mda.get_soln_rate(df)
-
-
-
+            solnrate = mda.get_soln_rate(fp)
 
             refdata = {'refLat': md['refLat'], 
                        'refLon': md['refLon'], 
@@ -124,52 +121,52 @@ class App:
                      'testname': md['testname']}
 
             for k,v in refdata.items():
+
                 ds = xr.Dataset.from_dataframe(df)
-
-
                 ds.attrs = refdata
 
 
             nav.append(ds)
+            print(nav)
         mkp.mkp.plot_nav(nav)
         rf = []
+        readstr = None
 
 
         for fp in fplist:
             if re.search('RFOnOff', fp):
                 readstr = fp + 'rf-on-off.csv'
-            elif re.search('Starts', fp):
+            elif re.search('Starts', fp, flags=re.IGNORECASE):
                 readstr = fp + 'starts.csv'
             elif re.search('CorrOnOff', fp):
                 readstr = fp + 'corr-on-off.csv'
             else:
-                break
-
-            
-            df = pd.read_csv(readstr)
-            md = mda.get_metadata(fp)
-
-
-
-            refdata = {'refLat': md['refLat'], 
-                       'refLon': md['refLon'], 
-                       'refAlt': md['refAlt'],
-                           'fw': md['FWversion'],
-                     'solnrate': solnrate,
-                     'filepath': fp,
-                     'testname': md['testname']}
+                pass
 
             if readstr != None:
+                df = pd.read_csv(readstr)
+                md = mda.get_metadata(fp)
+                solnrate = mda.get_soln_rate(fp)
+
+
+
+
+                refdata = {'refLat': md['refLat'], 
+                           'refLon': md['refLon'], 
+                           'refAlt': md['refAlt'],
+                               'fw': md['FWversion'],
+                         'solnrate': solnrate,
+                         'filepath': fp,
+                         'testname': md['testname']}
+
+            
                 ds = xr.Dataset.from_dataframe(df)
                 ds.attrs = refdata
                 rf.append(ds)
-
-        mkp.mkp.plot_rf(rf)
+        if readstr != None:
+            mkp.mkp.plot_rf(rf)
 
         plt.show()
-
-
-
 
 
 root = tk.Tk()

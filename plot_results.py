@@ -97,26 +97,15 @@ class plot_results():
             t = nav.index
             timelabel = "Epoch"
 
-        # refLat = 37.77101988
-        # refLon = -122.40315123
-        # refAlt = -5.612
-
-        # errN, errE, errD = pm.geodetic2ned(nav['Lat [deg]'], nav['Lon [deg]'], nav['Alt Ellips [m]'],
-        #                                     refLat, refLon, refAlt)
-        # nav['errN'] = errN
-        # nav['errE'] = errE
-        # nav['errD'] = errD
-
-        errN, errE, errD = mda.calc_LLH2NED(nav)
+        nav['errN'], nav['errE'], nav['errD'] = mda.calc_LLH2NED(nav)
 
         fw = md['FWversion']
         figsats = bp.plot_linear(t, nav['SVs Used'],figname='figsats', title='Sats used by ' + timelabel, xlabel=timelabel, ylabel='Sats in Solution',fw=fw)
-        fighorizerror = bp.plot_linear(t, nav['2D Error [m]'],figname='fighorizerror',  title='Horiz Error by '+ timelabel, xlabel=timelabel, ylabel='2D Error (m)',fw=fw)
-        print("horiz err cdf below")
+        fighorizerror = bp.plot_linear(t, nav['2D Error [m]'],figname='fighorizerror', title='Horiz Error by '+ timelabel, xlabel=timelabel, ylabel='2D Error (m)',fw=fw)
+        figdiffmode = bp.plot_linear(t, nav['Fix Mode'], figname='figdiffmode', title='Differntial Mode by '+ timelabel, xlabel=timelabel, ylabel='2D Error (m)',fw=fw)
         fighorizcdf = bp.plot_cdf(nav['2D Error [m]'],figname='fighorizcdf', title='CDF Horizontal Error', xlabel='2D Error (m)',fw=fw)
-        print("spherical cdf below")
         figspherecdf = bp.plot_cdf(nav['3D Error [m]'], figname='figspherecdf',title='CDF Spherical Error', xlabel='3D Error (m)',fw=fw)
-        figoverhead = bp.plot_overhead(errN, errE, title='Overhead Plot\nNorth vs East', xlabel="Error E/W (m)", ylabel='Error N/S (m)')
+        figoverhead = bp.plot_overhead(nav['errN'], nav['errE'], title='Overhead Plot\nNorth vs East', xlabel="Error E/W (m)", ylabel='Error N/S (m)')
 
         if rfonoff == True:
             filename = "rf-on-off.csv"
