@@ -21,6 +21,7 @@ Cycle,UTC,RF On,Corr On,LLA Msg,LLA Msg Time [s],Week,TOW [s],Fix Mode,SVs Used,
 
 class mkp():
 
+
     def plot_nav(nav):
 
         saveplots = True 
@@ -214,9 +215,6 @@ class mkp():
                 ax.grid()
                 ax.set_ylabel('Diffmode')
 
-
-
-
     def plot_rf(rf):
 
         print(rf)
@@ -281,6 +279,7 @@ class mkp():
                     flagcdf = True
 
                 ax = plt.gca()
+                
             if len(ax.lines) > 0:
 
 

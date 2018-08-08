@@ -19,10 +19,10 @@ class App:
         frame = tk.Frame(master)
         frame.pack()
         self.filepath = tk.StringVar()
-        self.filepath.set("/Volumes/data/data/PiksiMultiTesting/2018-07/17-gt1_5hz_rf5_rf1m_v1610/DUT13/20180718-161348-lj13-t2-d24h-f4-RTK-RFOnOff-30-50s/")
+        self.filepath.set("//Users/jwilson/SwiftNav/Piksi_v16_testing/gtt/27-gt3_1hz_rtk-st_v163-DEVC_801/DUT31/20180627-222825-lj31-t3-d12h-f4-RTK-Starts/")
 
         self.filepath2 = tk.StringVar()
-        self.filepath2.set("/Volumes/data/data/PiksiMultiTesting/2018-07/17-gt1_5hz_rf5_rf1m_v1610/DUT12/20180718-161415-lj12-t2-d24h-f4-RTK-RFOnOff-30-50s/")
+        self.filepath2.set("/Users/jwilson/SwiftNav/Piksi_v16_testing/gtt/27-gt3_1hz_rtk-st_v163-DEVC_801/DUT32/20180627-222827-lj32-t3-d12h-f4-RTK-Starts/")
         
         self.filepath3 = tk.StringVar()
         #self.filepath3.set("/Volumes/data/data/PiksiMultiTesting/2018-05/11-gt1_A-starts_B-CN_v1512/DUT14/20180511-130115-lj14-t3-d24h-f4-RTK-Starts/")
@@ -134,11 +134,12 @@ class App:
 
 
         for fp in fplist:
-            if re.search('RFOnOff', fp):
+            if re.search('RFOnOff', fp, flags=re.IGNORECASE):
                 readstr = fp + 'rf-on-off.csv'
             elif re.search('Starts', fp, flags=re.IGNORECASE):
                 readstr = fp + 'starts.csv'
-            elif re.search('CorrOnOff', fp):
+                startstest = True
+            elif re.search('CorrOnOff', fp, flags=re.IGNORECASE):
                 readstr = fp + 'corr-on-off.csv'
             else:
                 pass
@@ -147,8 +148,6 @@ class App:
                 df = pd.read_csv(readstr)
                 md = mda.get_metadata(fp)
                 solnrate = mda.get_soln_rate(fp)
-
-
 
 
                 refdata = {'refLat': md['refLat'], 
@@ -164,7 +163,16 @@ class App:
                 ds.attrs = refdata
                 rf.append(ds)
         if readstr != None:
+
+            if startstest == True:
+                for starts in rf:
+
+                    mda.calc_nobootstats(starts)
+                    print(starts)
             mkp.mkp.plot_rf(rf)
+
+
+
 
         plt.show()
 

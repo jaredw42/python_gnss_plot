@@ -10,42 +10,40 @@ import re
 
 def calc_LLH2NED(*args):
 
-	for value in args:
+    for value in args:
 
-		nav = value
-		#print(nav)
-		#refLat = -35.360799697
-		#refLon = 149.207155405
-		#refAlt = 638.635
+        nav = value
+        #print(nav)
+        #refLat = -35.360799697
+        #refLon = 149.207155405
+        #refAlt = 638.635
 
-		refLat = -35.36081064
-		refLon = 149.20715053
-		refAlt = 638.598		
+        refLat = -35.36081064
+        refLon = 149.20715053
+        refAlt = 638.598        
 
-		errN, errE, errD = pm.geodetic2ned(nav['Lat [deg]'], nav['Lon [deg]'], nav['Alt Ellips [m]'],
-											refLat, refLon, refAlt)
+        errN, errE, errD = pm.geodetic2ned(nav['Lat [deg]'], nav['Lon [deg]'], nav['Alt Ellips [m]'],
+                                            refLat, refLon, refAlt)
 
-		return([errN, errE, errD])
+        return([errN, errE, errD])
 
 def calc_drift(*args,**kwargs):
 
-	for key, value in kwargs.items():
-		tdiff = int(value)
+    for key, value in kwargs.items():
+        tdiff = int(value)
 
-	for data in args:
+    for data in args:
 
-		df = pd.DataFrame(data)
-		d = df.iloc[900:] - df.iloc[:-900].values
+        df = pd.DataFrame(data)
+        d = df.iloc[900:] - df.iloc[:-900].values
 
-		return(d)
+        return(d)
 
 def get_metadata(*args):
 
     filepath = args[0]
-
     rptpath = filepath + "report.txt"
 
-    #antre = re.compose('Antenna')
     md = {}
 
     with open(rptpath) as rp:
@@ -64,36 +62,41 @@ def get_metadata(*args):
                 md['FWversion'] = d[-1].strip()
 
             elif re.match('Name', line):
-            	d = line.split(':')
+                d = line.split(':')
 
-            	md['testname'] = d[-1].strip()
+                md['testname'] = d[-1].strip()
 
     return(md)
 
 def get_soln_rate(fp):
-	print(fp, 'fppppppppp mothafuckaaaaaaa')
-	csvpath = str(fp) + 'nav.csv'
-	nav = pd.read_csv(csvpath)
-	"""
-	trims [TOW [s]] to finite values then compares the 100th and 101st array values to calculate the navigation rate
-	"""
-	x = nav['TOW [s]'][np.isfinite(nav['TOW [s]'])]
+    csvpath = str(fp) + 'nav.csv'
+    nav = pd.read_csv(csvpath)
 
-	#print(x)
+    """
+    trims [TOW [s]] to finite values then compares the 100th and 101st array values to calculate the navigation rate
+    """
 
-	try:
-		navrate = 1 / (x[101].data - x[100].data)
-	except:
-		navrate = 1 / (x.iloc[101] - x.iloc[100])
-		#pass
-	solnrate = '{:.2f}'.format(navrate)
-	
-	print(solnrate)
-	return(solnrate)
+    x = nav['TOW [s]'][np.isfinite(nav['TOW [s]'])]
 
+    try:
+        navrate = 1 / (x[101].data - x[100].data)
+    except:
+        navrate = 1 / (x.iloc[101] - x.iloc[100])
 
+    solnrate = '{:.2f}'.format(navrate)
+    
+    print('{} Hz soln rate'.format(solnrate))
+    return(solnrate)
 
+def calc_nobootstats(starts):
 
-	
+    for var in starts.data_vars:
 
-	
+        if re.match('^TT', var):
+            varname = '{} - noboot'.format(var)
+            starts[varname] = starts[var] - starts['TT Boot [s]']
+
+    return(starts)
+    
+
+    
