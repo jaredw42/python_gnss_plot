@@ -1,4 +1,6 @@
 #!/usr/local/bin/python3
+import os
+import re
 import tkinter as tk
 import plot_results as pr 
 import magicdataanalyzer as mda 
@@ -8,7 +10,6 @@ import xarray as xr
 import matplotlib.pyplot as plt 
 import basic_plots as bp
 import make_plots as mkp
-import re
 
 
 
@@ -19,13 +20,13 @@ class App:
         frame = tk.Frame(master)
         frame.pack()
         self.filepath = tk.StringVar()
-        self.filepath.set("//Users/jwilson/SwiftNav/Piksi_v16_testing/gtt/27-gt3_1hz_rtk-st_v163-DEVC_801/DUT31/20180627-222825-lj31-t3-d12h-f4-RTK-Starts/")
+        self.filepath.set("/Volumes/data/data/PiksiMultiTesting/2018-11/09-RevCRetest85c/DUT61/20181109-152751-dut61-t3-d24h-f3-RTK-Starts-CellModem/")
 
         self.filepath2 = tk.StringVar()
-        self.filepath2.set("/Users/jwilson/SwiftNav/Piksi_v16_testing/gtt/27-gt3_1hz_rtk-st_v163-DEVC_801/DUT32/20180627-222827-lj32-t3-d12h-f4-RTK-Starts/")
+        self.filepath2.set("/Volumes/data/data/PiksiMultiTesting/2018-11/09-RevCRetest85c/DUT62/20181109-152754-dut62-t3-d24h-f3-RTK-Starts-CellModem/")
         
         self.filepath3 = tk.StringVar()
-        #self.filepath3.set("/Volumes/data/data/PiksiMultiTesting/2018-05/11-gt1_A-starts_B-CN_v1512/DUT14/20180511-130115-lj14-t3-d24h-f4-RTK-Starts/")
+     #   self.filepath3.set("/Volumes/data/data/PiksiMultiTesting/2018-10/12-v2.1.14-RTK/DUT13/20181012-161050-dut13-t3-d24h-f4-RTK-Starts")
         
         self.filepath4 = tk.StringVar()
         #self.filepath4.set("/Volumes/data/data/PiksiMultiTesting/2018-01/19-GT2_A_starts_B_RFoff_65s/DUT23/20180119-124747-lj23-t3-d24h-f4-RTK-Starts/")
@@ -64,7 +65,7 @@ class App:
         self.bdm.set("plots by diff modes")
 
         self.sp = tk.StringVar()
-        self.sp.set("save plots")
+        self.sp.set("recalc nav")
 
         opts = [self.nb, self.tr, self.bdm, self.sp]
         opts_len = len(opts)
@@ -87,8 +88,6 @@ class App:
 
         pr.plot_results.plot_individual(args)
 
-
-
     def execute_calc(self):
        
         args = [self.filepath.get(), self.nb.get(), self.tr.get(), self.bdm.get(), self.sp.get(),self.filepath2.get(),
@@ -96,18 +95,16 @@ class App:
 
         fplist = []
         for a in args:
-            if re.search('(?i)piksi',a):
+            if re.search('dut',a):
                 fplist.append(a)
         
         md = {}
         nav = []
-        
-
         for i, fp in enumerate(fplist):
 
             md['fp{}'.format(i)] = fp
-
-            readstr = fp + 'nav.csv'
+            readstr = os.path.join(fp, 'nav.csv')
+            print(readstr)
             df = pd.read_csv(readstr)
             md = mda.get_metadata(fp)
             solnrate = mda.get_soln_rate(fp)
@@ -118,29 +115,28 @@ class App:
                            'fw': md['FWversion'],
                      'solnrate': solnrate,
                      'filepath': fp,
-                     'testname': md['testname']}
+                     'testname': md['testname'],
+                     'device': md['device']}
 
-            for k,v in refdata.items():
-
-                ds = xr.Dataset.from_dataframe(df)
-                ds.attrs = refdata
-
+            ds = xr.Dataset.from_dataframe(df)
+            ds.attrs = refdata
 
             nav.append(ds)
             print(nav)
         mkp.mkp.plot_nav(nav)
         rf = []
         readstr = None
+        startstest = False 
 
 
         for fp in fplist:
             if re.search('RFOnOff', fp, flags=re.IGNORECASE):
-                readstr = fp + 'rf-on-off.csv'
+                readstr = os.path.join(fp, 'rf-on-off.csv')
             elif re.search('Starts', fp, flags=re.IGNORECASE):
-                readstr = fp + 'starts.csv'
+                readstr = os.path.join(fp , 'starts.csv')
                 startstest = True
             elif re.search('CorrOnOff', fp, flags=re.IGNORECASE):
-                readstr = fp + 'corr-on-off.csv'
+                readstr = os.path.join(fp, 'corr-on-off.csv')
             else:
                 pass
 
@@ -156,7 +152,8 @@ class App:
                                'fw': md['FWversion'],
                          'solnrate': solnrate,
                          'filepath': fp,
-                         'testname': md['testname']}
+                         'testname': md['testname'],
+                         'device': md['device']}
 
             
                 ds = xr.Dataset.from_dataframe(df)
@@ -171,11 +168,7 @@ class App:
                     print(starts)
             mkp.mkp.plot_rf(rf)
 
-
-
-
         plt.show()
-
 
 root = tk.Tk()
 print(root)

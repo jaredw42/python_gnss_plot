@@ -1,4 +1,5 @@
 #!/usr/local/bin/python3
+import os 
 import numpy as np
 import pandas as pd
 import pymap3d as pm
@@ -42,7 +43,7 @@ def calc_drift(*args,**kwargs):
 def get_metadata(*args):
 
     filepath = args[0]
-    rptpath = filepath + "report.txt"
+    rptpath = os.path.join(filepath, "report.txt")
 
     md = {}
 
@@ -66,16 +67,22 @@ def get_metadata(*args):
 
                 md['testname'] = d[-1].strip()
 
+            elif re.match('GNSS', line):
+                d = line.split(' ')
+                print(d, 'GNSS prot D')
+                md['device'] = d[-4]
+
     return(md)
 
 def get_soln_rate(fp):
-    csvpath = str(fp) + 'nav.csv'
+    csvpath = os.path.join(str(fp),'nav.csv')
     nav = pd.read_csv(csvpath)
 
     """
     trims [TOW [s]] to finite values then compares the 100th and 101st array values to calculate the navigation rate
     """
-
+    print(nav)
+    print(nav['TOW [s]'])
     x = nav['TOW [s]'][np.isfinite(nav['TOW [s]'])]
 
     try:

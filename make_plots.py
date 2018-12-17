@@ -62,12 +62,12 @@ class mkp():
 
         #set x-axis smartly (gps time or epoch if near gps rollover)
             try:
-                t = navdata['TOW [s]']
+                navdata['t'] = navdata['TOW [s]']
             except:
-                t = navdata['GPS TOW [s]']
+                navdata['t'] = navdata['GPS TOW [s]']
                 navdata['GPS TOW [s]'] = navdata['TOW [s]']
 
-            if np.max(t) < 604000:
+            if np.max(navdata['t']) < 604000:
                 timelabel = "GPS TOW(s)"
 
             else:
@@ -83,7 +83,7 @@ class mkp():
 
             ax = plt.subplot(sbplnum, 1, 1+i)
             legendname = navdata.attrs['fw'] + '-' + navdata.attrs['solnrate'] + " Hz"
-            ax.plot(t, navdata['2D Error [m]'],label=legendname)
+            ax.plot(navdata['t'], navdata['2D Error [m]'],label=legendname)
 
             ax.grid()
             ax.legend()
@@ -108,87 +108,116 @@ class mkp():
                 print(sp)
                 plt.savefig(sp)
 
+        fig = plt.figure(figsize=figsize)
 
-        diffmodes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+        for i, navdata in enumerate(nav):
+            ax = plt.subplot(sbplnum, 1, 1+i)
+            legendname = navdata.attrs['fw'] + "-" + navdata.attrs['solnrate'] + " Hz"
+            ax.plot(navdata['t'], navdata['Fix Mode'], label=legendname)
 
-        for dm in diffmodes:
+            ax.grid()
+            ax.legend()
+            ax.set_ylabel('Fix Mode')
 
-            fig = plt.figure(figsize = cdfsize)
-            ax = plt.subplot(1,1,1)
-            a = []
-            b = np.zeros([2,4])
-            cdfwithtxt = []
-            cdf = []
-            flagcdf = False 
+            if i ==0:
 
-            for i, navdata in enumerate(nav):
-
-                d = navdata.where(navdata['Fix Mode'] == dm)
-                plotdata = np.sort(d['2D Error [m]'])
-                if any(np.isfinite(plotdata)):
-                        
-                    plotdata = plotdata[~np.isnan(plotdata)]
-                    yvals = np.arange(len(plotdata)) /float(len(plotdata) - 1)
-                    legendname = navdata.attrs['fw'] + '-' + navdata.attrs['solnrate'] + " Hz"
-                    ax.plot(plotdata, yvals,label=legendname)
-
-                    # find percentile values and add to plot
-
-                    for q in [50, 68, 95, 99]:
-
-                        if flagcdf == False:
-                            cdfwithtxt.append(("{}% percentile: {:.2f}".format (q, np.percentile(plotdata, q))))
-                            
-                        else:
-                            cdf.append(("{:.2f}".format (np.percentile(plotdata, q))))
-
-                    flagcdf = True
-
-            ax = plt.gca()
-            if len(ax.lines) > 0:
-
-
-                ax.legend()
-                ax.grid()
-                x = np.median(plotdata)
-                y = np.median(yvals)
-
-                xmin, xmax = ax.get_xlim()
-                ymin, ymax = ax.get_ylim()
-
-                ypos = ymax * 0.3
-                xpos = xmax * 0.6
-                print(a)
-                if sbplnum > 2:
-                    cdf = np.reshape(cdf,[4,-1])
-
-                try:
-                    cdfdata = np.column_stack([cdfwithtxt, cdf])
-                except:
-                    cdfdata = np.reshape(cdfwithtxt ,[4,-1])
-
-                plt.text(xpos, ypos, cdfdata)
-                ax.set_xlabel('Horizontal Error (m) - Diffmode: ' + str(dm))
-                ax.set_ylabel('Percent of Epochs')
                 tlname = 'GTT ' + navdata.attrs['testname']
                 tlsoln = '\nSolution rate: ' + navdata.attrs['solnrate'].rstrip() + 'Hz  Date: ' + tdate
-                tl = tlname + tlsoln + '\n CDF Horizontal Error for Diff Mode: ' + str(dm)
+                tl = tlname + tlsoln + '\nDiff Mode vs time'
                 plt.title(tl)
+            elif i == (sbplnum -1 ):
 
                 solnrate = navdata.attrs['solnrate'].split('.')
                 solnrate = solnrate[0]
-
-                savename = (tdate + "_" + solnrate + "Hz_" + 
-                    navdata.attrs['testname'] + '_CDF_err2D_DM_{}'.format(dm))
-
+                ax.set_xlabel(timelabel)
+                savename = (tdate.strip('-') + "_" + navdata.attrs['solnrate'].rstrip('.0') + "Hz_" + 
+                    navdata.attrs['testname'].strip() + '_diffMode')
                 savename = savename.replace("-", "")
                 sp = savepath + savename
-                print(sp,)
+                print(sp)
                 plt.savefig(sp)
-                
 
-            else:
-                plt.close(fig)               
+        diffmodes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+        error_vals = ['2D Error [m]','3D Error [m]']
+        for err in error_vals:
+            for dm in diffmodes:
+
+                fig = plt.figure(figsize = cdfsize)
+                ax = plt.subplot(1,1,1)
+                a = []
+                b = np.zeros([2,4])
+                cdfwithtxt = []
+                cdf = []
+                flagcdf = False 
+
+                for i, navdata in enumerate(nav):
+
+                    d = navdata.where(navdata['Fix Mode'] == dm)
+                    plotdata = np.sort(d['2D Error [m]'])
+                    if any(np.isfinite(plotdata)):
+                            
+                        plotdata = plotdata[~np.isnan(plotdata)]
+                        yvals = np.arange(len(plotdata)) /float(len(plotdata) - 1)
+                        legendname = navdata.attrs['fw'] + '-' + navdata.attrs['solnrate'] + " Hz"
+                        ax.plot(plotdata, yvals,label=legendname)
+
+                        # find percentile values and add to plot
+
+                        for q in [50, 68, 95, 99]:
+
+                            if flagcdf == False:
+                                cdfwithtxt.append(("{}% percentile: {:.2f}".format (q, np.percentile(plotdata, q))))
+                                
+                            else:
+                                cdf.append(("{:.2f}".format (np.percentile(plotdata, q))))
+
+                        flagcdf = True
+
+                ax = plt.gca()
+                if len(ax.lines) > 0:
+
+
+                    ax.legend()
+                    ax.grid()
+                    x = np.median(plotdata)
+                    y = np.median(yvals)
+
+                    xmin, xmax = ax.get_xlim()
+                    ymin, ymax = ax.get_ylim()
+
+                    ypos = ymax * 0.3
+                    xpos = xmax * 0.6
+                    print(a)
+                    if sbplnum > 2:
+                        cdf = np.reshape(cdf,[4,-1])
+
+                    try:
+                        cdfdata = np.column_stack([cdfwithtxt, cdf])
+                    except:
+                        cdfdata = np.reshape(cdfwithtxt ,[4,-1])
+
+                #    plt.text(xpos, ypos, cdfdata)
+                    ax.set_xlabel(str(err)+' - Diffmode: ' + str(dm))
+                    ax.set_ylabel('Percent of Epochs')
+                    tlname = 'GTT ' + navdata.attrs['testname']
+                    tlsoln = '\nSolution rate: ' + navdata.attrs['solnrate'].rstrip() + 'Hz  Date: ' + tdate
+                    tl = tlname + tlsoln + '\n CDF '+ str(err) +' for Diff Mode: ' + str(dm)
+                    plt.title(tl)
+
+                    solnrate = navdata.attrs['solnrate'].split('.')
+                    solnrate = solnrate[0]
+
+                    savename = (tdate + "_" + solnrate + "Hz_" + 
+                        navdata.attrs['testname'] + '_CDF_{}_DM_{}'.format(err, dm))
+
+                    savename = savename.replace("-", "")
+                    sp = savepath + savename
+                    print(sp,)
+                    plt.savefig(sp)
+                    
+
+                else:
+                    plt.close(fig)               
 
         #cycles = [1,2,3,7,89, 63,1274]
         cycles = []
@@ -231,7 +260,7 @@ class mkp():
         fp = rf[0].attrs['filepath']
         fplist= fp.split('/')
 
-        x = fp.find('DUT')
+        x = fp.find('/DUT')
         savepath = fp[0:x] + "plots/"
 
         try:
@@ -263,8 +292,9 @@ class mkp():
 
                 if any(np.isfinite(plotdata)):
                     plotdata = plotdata[~np.isnan(plotdata)]
-                    yvals = np.arange(len(plotdata))# /float(len(plotmetric) - 1)
-                    legendname = rfdata.attrs['fw'] + '-' + rfdata.attrs['solnrate'] + " Hz"
+                    yvals = np.arange(len(plotdata)) #/float(len(plotdata) - 1) * 100
+
+                    legendname = rfdata.attrs['device'] + '-' + rfdata.attrs['fw'] + '-' + rfdata.attrs['solnrate'] + " Hz"
                     ax.plot(plotdata, yvals,label=legendname)
 
 
@@ -299,9 +329,9 @@ class mkp():
                 except:
                     cdfdata = np.reshape(cdfwithtxt ,[4,-1])
 
-                plt.text(xpos, ypos, cdfdata)
+               # plt.text(xpos, ypos, cdfdata)
                 ax.set_xlabel(str(plotmetric))
-                ax.set_ylabel('Number of Cycles')
+                ax.set_ylabel('Percent of Cycles')
                 tlname = 'GTT ' + rfdata.attrs['testname']
                 tlsoln = '\nSolution rate: ' + rfdata.attrs['solnrate'].rstrip() + 'Hz  Date: ' + tdate
                 tl = tlname + tlsoln + '\n CDF ' + str(plotmetric) 
@@ -316,7 +346,6 @@ class mkp():
 
                 savename = savename.replace("-", "")
                 sp = savepath + savename
-                print(sp)
                 plt.savefig(sp)
                 
 
